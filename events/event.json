@@ -1,0 +1,76 @@
+{
+  "messageVersion": "1.0",
+  "invocationSource": "FulfillmentCodeHook",
+  "userId": "93u5wj9a4d8iyg3swpct0qor7wpu3xpg",
+  "sessionAttributes": {
+    "chatbot_name": "HRoBOT",
+    "company_name": "Global Modern Services",
+    "update_details": null,
+    "first_name": "Anna",
+    "emp_id": "21003"
+  },
+  "requestAttributes": null,
+  "bot": {
+    "name": "WorkdayBot",
+    "alias": "$LATEST",
+    "version": "$LATEST"
+  },
+  "outputDialogMode": "Text",
+  "currentIntent": {
+    "name": "EmergencyContactDetails",
+    "slots": {
+      "Relation": null,
+      "RelativeFirstName": null,
+      "Update": null,
+      "RelativeLastName": null
+    },
+    "slotDetails": {
+      "Relation": {
+        "resolutions": [],
+        "originalValue": null
+      },
+      "RelativeFirstName": {
+        "resolutions": [],
+        "originalValue": null
+      },
+      "Update": {
+        "resolutions": [],
+        "originalValue": null
+      },
+      "RelativeLastName": {
+        "resolutions": [],
+        "originalValue": null
+      }
+    },
+    "confirmationStatus": "null"
+  },
+  "inputTranscript": "yes",
+  "recentIntentSummaryView": [
+    {
+      "intentName": "EmergencyContactDetails",
+      "checkpointLabel": null,
+      "slots": {
+        "Relation": null,
+        "RelativeFirstName": null,
+        "Update": null,
+        "RelativeLastName": null
+      },
+      "confirmationStatus": "null",
+      "dialogActionType": "ElicitSlot",
+      "fulfillmentState": null,
+      "slotToElicit": "Update"
+    },
+    {
+      "intentName": "Greeting",
+      "checkpointLabel": null,
+      "slots": {
+        "EmployeeID": "21003"
+      },
+      "confirmationStatus": "null",
+      "dialogActionType": "Close",
+      "fulfillmentState": "Fulfilled",
+      "slotToElicit": null
+    }
+  ],
+  "sentimentResponse": null
+}
