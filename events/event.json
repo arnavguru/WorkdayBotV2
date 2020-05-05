@@ -1,76 +1,124 @@
 {
-  "messageVersion": "1.0",
-  "invocationSource": "FulfillmentCodeHook",
-  "userId": "93u5wj9a4d8iyg3swpct0qor7wpu3xpg",
-  "sessionAttributes": {
-    "chatbot_name": "HRoBOT",
-    "company_name": "Global Modern Services",
-    "update_details": null,
-    "first_name": "Anna",
-    "emp_id": "21003"
-  },
-  "requestAttributes": null,
-  "bot": {
-    "name": "WorkdayBot",
-    "alias": "$LATEST",
-    "version": "$LATEST"
-  },
-  "outputDialogMode": "Text",
-  "currentIntent": {
-    "name": "EmergencyContactDetails",
-    "slots": {
-      "Relation": null,
-      "RelativeFirstName": null,
-      "Update": null,
-      "RelativeLastName": null
+    "messageVersion": "1.0",
+    "invocationSource": "FulfillmentCodeHook",
+    "userId": "xp90skomihbjxkq114vx6v21564x2nb3",
+    "sessionAttributes": {
+        "chatbot_name": "HRoBOT",
+        "company_name": "Global Modern Services",
+        "update_details": "1",
+        "first_name": "Anna",
+        "emp_id": "21003"
     },
-    "slotDetails": {
-      "Relation": {
-        "resolutions": [],
-        "originalValue": null
-      },
-      "RelativeFirstName": {
-        "resolutions": [],
-        "originalValue": null
-      },
-      "Update": {
-        "resolutions": [],
-        "originalValue": null
-      },
-      "RelativeLastName": {
-        "resolutions": [],
-        "originalValue": null
-      }
+    "requestAttributes": null,
+    "bot": {
+        "name": "WorkdayBot",
+        "alias": "$LATEST",
+        "version": "$LATEST"
     },
-    "confirmationStatus": "null"
-  },
-  "inputTranscript": "yes",
-  "recentIntentSummaryView": [
-    {
-      "intentName": "EmergencyContactDetails",
-      "checkpointLabel": null,
-      "slots": {
-        "Relation": null,
-        "RelativeFirstName": null,
-        "Update": null,
-        "RelativeLastName": null
-      },
-      "confirmationStatus": "null",
-      "dialogActionType": "ElicitSlot",
-      "fulfillmentState": null,
-      "slotToElicit": "Update"
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "EmergencyContactDetails",
+        "slots": {
+            "EmailID": null,
+            "Relation": "spouse",
+            "RelativeFirstName": "Related",
+            "State": null,
+            "AddressLine": null,
+            "PostalCode": null,
+            "PhoneNumber": null,
+            "City": null,
+            "Update": "yes",
+            "RelativeLastName": "Reynolds"
+        },
+        "slotDetails": {
+            "EmailID": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "Relation": null,
+            "RelativeFirstName": {
+                "resolutions": [],
+                "originalValue": "Related"
+            },
+            "State": null,
+            "AddressLine": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "PostalCode": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "PhoneNumber": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "City": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "Update": {
+                "resolutions": [],
+                "originalValue": "yes"
+            },
+            "RelativeLastName": {
+                "resolutions": [],
+                "originalValue": "Reynolds"
+            }
+        },
+        "confirmationStatus": "null"
     },
-    {
-      "intentName": "Greeting",
-      "checkpointLabel": null,
-      "slots": {
-        "EmployeeID": "21003"
-      },
-      "confirmationStatus": "null",
-      "dialogActionType": "Close",
-      "fulfillmentState": "Fulfilled",
-      "slotToElicit": null
-    }
-  ],
-  "sentimentResponse": null
+    "inputTranscript": "San Francisco",
+    "recentIntentSummaryView": [
+        {
+            "intentName": "EmergencyContactDetails",
+            "checkpointLabel": null,
+            "slots": {
+                "EmailID": null,
+                "Relation": "spouse",
+                "RelativeFirstName": "Related",
+                "State": "california",
+                "AddressLine": null,
+                "PostalCode": null,
+                "PhoneNumber": null,
+                "City": null,
+                "Update": "yes",
+                "RelativeLastName": "Reynolds"
+            },
+            "confirmationStatus": "null",
+            "dialogActionType": "ElicitSlot",
+            "fulfillmentState": null,
+            "slotToElicit": "City"
+        },
+        {
+            "intentName": "CancelCurrentIntent",
+            "checkpointLabel": null,
+            "slots": {},
+            "confirmationStatus": "null",
+            "dialogActionType": "Close",
+            "fulfillmentState": "Fulfilled",
+            "slotToElicit": null
+        },
+        {
+            "intentName": "EmergencyContactDetails",
+            "checkpointLabel": null,
+            "slots": {
+                "EmailID": null,
+                "Relation": "spouse",
+                "RelativeFirstName": "Related",
+                "State": null,
+                "AddressLine": null,
+                "PostalCode": null,
+                "PhoneNumber": null,
+                "City": null,
+                "Update": "yes",
+                "RelativeLastName": "Reynolds"
+            },
+            "confirmationStatus": "null",
+            "dialogActionType": "ElicitSlot",
+            "fulfillmentState": null,
+            "slotToElicit": "State"
+        }
+    ],
+    "sentimentResponse": null
 }

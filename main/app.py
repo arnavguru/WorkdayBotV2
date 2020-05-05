@@ -31,7 +31,7 @@ def close(session_attributes, message):
     }
 
     print('####CLOSE')
-    print(response)
+    print((str(response).replace('\'', '"')).replace('None', 'null'))
 
     return response
 
@@ -54,7 +54,7 @@ def delegate(session_attributes, slots):
     }
 
     print('####DELEGATE')
-    print(response)
+    print((str(response).replace('\'', '"')).replace('None', 'null'))
 
     return response
 
@@ -85,7 +85,7 @@ def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message)
     }
 
     print('####ELICIT_SLOT')
-    print(response)
+    print((str(response).replace('\'', '"')).replace('None', 'null'))
 
     return response
 
@@ -817,6 +817,7 @@ def update_emergency_contact(event):
 
     if slots['Update'] is not None and slots['Update'].lower() == 'yes':
         update_details = True
+        session_attributes['update_details'] = '1'
 
     elif slots['Update'] is not None and slots['Update'].lower() == 'no':
         message = 'Thanks for confirming the details.'
@@ -827,6 +828,18 @@ def update_emergency_contact(event):
             update_details = True
         else:
             update_details = False
+
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Update':
+            if str(event['inputTranscript']).lower() == 'yes':
+                update_details = True
+                slots['Update'] = 'yes'
+                session_attributes['update_details'] = '1'
+            elif str(event['inputTranscript']).lower() == 'no':
+                message = 'Thanks for confirming the details.'
+                return close(session_attributes, message)
+    except KeyError:
+        pass
 
     emp_id = get_emp_id(event)
 
@@ -907,6 +920,10 @@ def update_emergency_contact(event):
 
         relation_type = slots['Relation']
 
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Relation':
+            slots['Relation'] = str(event['inputTranscript']).lower()
+            relation_type = str(event['inputTranscript']).lower()
+
         if relation_type is None:
             message = 'Please specify the relationship (Father, Mother, Spouse, Child, etc)'
             return elicit_slot(session_attributes, current_intent, slots, 'Relation', message)
@@ -915,52 +932,87 @@ def update_emergency_contact(event):
 
         relative_first_name = slots['RelativeFirstName']
 
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'RelativeFirstName':
+            slots['RelativeFirstName'] = str(event['inputTranscript']).capitalize()
+            relative_first_name = str(event['inputTranscript']).capitalize()
+
         if relative_first_name is None:
             message = 'Please provide the first name of the contact:'
             return elicit_slot(session_attributes, current_intent, slots, 'RelativeFirstName', message)
 
         relative_last_name = slots['RelativeLastName']
 
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'RelativeLastName':
+            slots['RelativeLastName'] = str(event['inputTranscript']).capitalize()
+            relative_last_name = str(event['inputTranscript']).capitalize()
+
         if relative_last_name is None:
             message = 'Please provide the last name of the contact:'
             return elicit_slot(session_attributes, current_intent, slots, 'RelativeLastName', message)
 
-        if relative_last_name is not None:
-            return close(session_attributes, relative_last_name)
-
-        relative_state = slots['State']
-
-        if relative_state is None:
-            message = 'Please provide the State/Province where they live'
-            return elicit_slot(session_attributes, current_intent, slots, 'State', message)
-
-        relative_state = states_dict[str(relative_state).lower()]
-
-        relative_city = slots['City']
-
-        if relative_city is None:
-            message = 'Please provide the City/Town where they live'
-            return elicit_slot(session_attributes, current_intent, slots, 'City', message)
-
         postal_code = slots['PostalCode']
+
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PostalCode':
+            slots['PostalCode'] = str(event['inputTranscript']).lower()
+            postal_code = str(event['inputTranscript']).lower()
 
         if postal_code is None:
             message = 'Please provide their postal code/zip code'
             return elicit_slot(session_attributes, current_intent, slots, 'PostalCode', message)
 
-        address_line = slots['AddressLine']
+        # relative_state = slots['State']
+        #
+        # if event['recentIntentSummaryView'][0]['slotToElicit'] == 'State':
+        #     slots['State'] = str(event['inputTranscript']).lower()
+        #     relative_state = str(event['inputTranscript']).lower()
+        #
+        # if relative_state is None:
+        #     message = 'Please provide the State/Province where they live'
+        #     return elicit_slot(session_attributes, current_intent, slots, 'State', message)
+        #
+        # relative_state_converted = states_dict[str(relative_state).lower()]
+        #
+        # relative_city = slots['City']
+        #
+        # if event['recentIntentSummaryView'][0]['slotToElicit'] == 'City':
+        #     slots['City'] = str(event['inputTranscript']).lower()
+        #     relative_city = str(event['inputTranscript']).lower()
+        #
+        # if relative_city is None:
+        #     message = 'Please provide the City/Town where they live'
+        #     return elicit_slot(session_attributes, current_intent, slots, 'City', message)
 
-        if address_line is None:
+        complete_address = slots['AddressLine']
+
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'AddressLine':
+            slots['AddressLine'] = str(event['inputTranscript']).lower()
+            complete_address = str(event['inputTranscript']).lower()
+
+        if complete_address is None:
             message = 'Please provide their address'
             return elicit_slot(session_attributes, current_intent, slots, 'AddressLine', message)
 
+        address_line, relative_city, relative_state = complete_address.split(',')
+        address_line = str(address_line).strip()
+        relative_city = str(relative_city).strip()
+        relative_state = str(relative_state).strip()
+        relative_state_converted = states_dict[str(relative_state).lower()]
+
         phone_number = slots['PhoneNumber']
+
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PhoneNumber':
+            slots['PhoneNumber'] = str(event['inputTranscript']).lower()
+            phone_number = str(event['inputTranscript']).lower()
 
         if phone_number is None:
             message = 'Please provide their phone number'
             return elicit_slot(session_attributes, current_intent, slots, 'PhoneNumber', message)
 
         email_address = slots['EmailID']
+
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'EmailID':
+            slots['EmailID'] = str(event['inputTranscript']).lower()
+            email_address = str(event['inputTranscript']).lower()
 
         if email_address is None:
             message = 'Please provide your new home email address'
@@ -971,11 +1023,12 @@ def update_emergency_contact(event):
                                                                                  relative_last_name,
                                                                                  address_line,
                                                                                  str(relative_city).capitalize(),
-                                                                                 relative_state, postal_code,
+                                                                                 relative_state_converted, postal_code,
                                                                                  phone_number, email_address)
 
         if status_code == 200:
-            message = 'Thanks for providing the information. Your details have been updated on Workday.'
+            message = 'Thanks for providing the information. Your emergency contact details have been updated on ' \
+                      'Workday.'
 
         else:
             message = workday_response['SOAP-ENV:Envelope']['SOAP-ENV:Body']['SOAP-ENV:Fault']['faultstring']
@@ -996,7 +1049,7 @@ def lambda_handler(event, context):
     slots = get_slots(event)
 
     print('####EVENT')
-    print(event)
+    print((str(event).replace('\'', '"')).replace('None', 'null'))
 
     print('####SLOTS')
     print(slots)

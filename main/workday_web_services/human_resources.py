@@ -315,7 +315,7 @@ def change_emergency_contact(emp_id, country, relation_type, first_name, last_na
                                     </wd:Preferred_Name_Data> 
                                 </wd:Person_Name_Data>
                                 <wd:Contact_Information_Data>
-                                    <wd:Address_Data wd:Delete="false" wd:Do_Not_Replace_All="true">
+                                    <wd:Address_Data wd:Delete="false" wd:Do_Not_Replace_All="false">
                                         <wd:Country_Reference>
                                             <wd:ID wd:type="ISO_3166-1_Alpha-3_Code">{country}</wd:ID>
                                         </wd:Country_Reference>
@@ -335,7 +335,7 @@ def change_emergency_contact(emp_id, country, relation_type, first_name, last_na
                                             </wd:Type_Data>
                                         </wd:Usage_Data>
                                     </wd:Address_Data>
-                                    <wd:Phone_Data wd:Delete="false" wd:Do_Not_Replace_All="true">
+                                    <wd:Phone_Data wd:Delete="false" wd:Do_Not_Replace_All="false">
                                         <wd:Country_ISO_Code>{country}</wd:Country_ISO_Code>
                                         <wd:Phone_Number>{phone_number}</wd:Phone_Number>
                                         <wd:Phone_Device_Type_Reference>
@@ -349,7 +349,7 @@ def change_emergency_contact(emp_id, country, relation_type, first_name, last_na
                                             </wd:Type_Data>
                                         </wd:Usage_Data>
                                     </wd:Phone_Data>
-                                    <wd:Email_Address_Data wd:Delete="false" wd:Do_Not_Replace_All="true">
+                                    <wd:Email_Address_Data wd:Delete="false" wd:Do_Not_Replace_All="false">
                                         <wd:Email_Address>{email}</wd:Email_Address>
                                         <wd:Usage_Data wd:Public="true">
                                             <wd:Type_Data wd:Primary="true">
