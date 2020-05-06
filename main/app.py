@@ -672,6 +672,17 @@ def update_home_email(event):
 
     email_address = slots['EmailID']
 
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'EmailID':
+            if str(event['inputTranscript']).__contains__('mailto'):
+                slots['EmailID'] = str(str(event['inputTranscript']).split('|')[1]).replace('>', '')
+                email_address = str(str(event['inputTranscript']).split('|')[1]).replace('>', '')
+            else:
+                slots['EmailID'] = str(event['inputTranscript'])
+                email_address = str(event['inputTranscript'])
+    except KeyError:
+        pass
+
     if email_address is None:
         message = 'Please provide your new home email address'
         return elicit_slot(session_attributes, current_intent, slots, 'EmailID', message)
@@ -920,9 +931,12 @@ def update_emergency_contact(event):
 
         relation_type = slots['Relation']
 
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Relation':
-            slots['Relation'] = str(event['inputTranscript']).lower()
-            relation_type = str(event['inputTranscript']).lower()
+        try:
+            if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Relation':
+                slots['Relation'] = str(event['inputTranscript']).lower()
+                relation_type = str(event['inputTranscript']).lower()
+        except KeyError:
+            pass
 
         if relation_type is None:
             message = 'Please specify the relationship (Father, Mother, Spouse, Child, etc)'
@@ -932,9 +946,12 @@ def update_emergency_contact(event):
 
         relative_first_name = slots['RelativeFirstName']
 
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'RelativeFirstName':
-            slots['RelativeFirstName'] = str(event['inputTranscript']).capitalize()
-            relative_first_name = str(event['inputTranscript']).capitalize()
+        try:
+            if event['recentIntentSummaryView'][0]['slotToElicit'] == 'RelativeFirstName':
+                slots['RelativeFirstName'] = str(event['inputTranscript']).capitalize()
+                relative_first_name = str(event['inputTranscript']).capitalize()
+        except KeyError:
+            pass
 
         if relative_first_name is None:
             message = 'Please provide the first name of the contact:'
@@ -942,9 +959,12 @@ def update_emergency_contact(event):
 
         relative_last_name = slots['RelativeLastName']
 
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'RelativeLastName':
-            slots['RelativeLastName'] = str(event['inputTranscript']).capitalize()
-            relative_last_name = str(event['inputTranscript']).capitalize()
+        try:
+            if event['recentIntentSummaryView'][0]['slotToElicit'] == 'RelativeLastName':
+                slots['RelativeLastName'] = str(event['inputTranscript']).capitalize()
+                relative_last_name = str(event['inputTranscript']).capitalize()
+        except KeyError:
+            pass
 
         if relative_last_name is None:
             message = 'Please provide the last name of the contact:'
@@ -952,9 +972,12 @@ def update_emergency_contact(event):
 
         postal_code = slots['PostalCode']
 
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PostalCode':
-            slots['PostalCode'] = str(event['inputTranscript']).lower()
-            postal_code = str(event['inputTranscript']).lower()
+        try:
+            if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PostalCode':
+                slots['PostalCode'] = str(event['inputTranscript'])
+                postal_code = str(event['inputTranscript'])
+        except KeyError:
+            pass
 
         if postal_code is None:
             message = 'Please provide their postal code/zip code'
@@ -984,9 +1007,12 @@ def update_emergency_contact(event):
 
         complete_address = slots['AddressLine']
 
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'AddressLine':
-            slots['AddressLine'] = str(event['inputTranscript']).lower()
-            complete_address = str(event['inputTranscript']).lower()
+        try:
+            if event['recentIntentSummaryView'][0]['slotToElicit'] == 'AddressLine':
+                slots['AddressLine'] = str(event['inputTranscript'])
+                complete_address = str(event['inputTranscript'])
+        except KeyError:
+            pass
 
         if complete_address is None:
             message = 'Please provide their address'
@@ -1000,9 +1026,12 @@ def update_emergency_contact(event):
 
         phone_number = slots['PhoneNumber']
 
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PhoneNumber':
-            slots['PhoneNumber'] = str(event['inputTranscript']).lower()
-            phone_number = str(event['inputTranscript']).lower()
+        try:
+            if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PhoneNumber':
+                slots['PhoneNumber'] = str(event['inputTranscript'])
+                phone_number = str(event['inputTranscript'])
+        except KeyError:
+            pass
 
         if phone_number is None:
             message = 'Please provide their phone number'
@@ -1010,9 +1039,16 @@ def update_emergency_contact(event):
 
         email_address = slots['EmailID']
 
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'EmailID':
-            slots['EmailID'] = str(event['inputTranscript']).lower()
-            email_address = str(event['inputTranscript']).lower()
+        try:
+            if event['recentIntentSummaryView'][0]['slotToElicit'] == 'EmailID':
+                if str(event['inputTranscript']).__contains__('mailto'):
+                    slots['EmailID'] = str(str(event['inputTranscript']).split('|')[1]).replace('>', '')
+                    email_address = str(str(event['inputTranscript']).split('|')[1]).replace('>', '')
+                else:
+                    slots['EmailID'] = str(event['inputTranscript'])
+                    email_address = str(event['inputTranscript'])
+        except KeyError:
+            pass
 
         if email_address is None:
             message = 'Please provide your new home email address'
