@@ -339,11 +339,30 @@ def change_preferred_name(event):
     emp_country = get_emp_country(event, emp_id)
 
     first_name = slots['PrefFirstName']
-    last_name = slots['PrefLastName']
+
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PrefFirstName':
+            slots['PrefFirstName'] = str(event['inputTranscript']).lower()
+            first_name = str(event['inputTranscript']).lower()
+    except KeyError:
+        pass
+    except TypeError:
+        pass
 
     if first_name is None:
         message = 'Please provide your preferred first name'
         return elicit_slot(session_attributes, current_intent, slots, 'PrefFirstName', message)
+
+    last_name = slots['PrefLastName']
+
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'PrefLastName':
+            slots['PrefLastName'] = str(event['inputTranscript']).lower()
+            last_name = str(event['inputTranscript']).lower()
+    except KeyError:
+        pass
+    except TypeError:
+        pass
 
     if last_name is None:
         message = 'Please provide your preferred last name'
@@ -381,6 +400,15 @@ def change_business_title(event):
         return emp_id
 
     business_title = slots['NewBusinessTitle']
+
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'NewBusinessTitle':
+            slots['NewBusinessTitle'] = str(event['inputTranscript']).lower()
+            business_title = str(event['inputTranscript']).lower()
+    except KeyError:
+        pass
+    except TypeError:
+        pass
 
     if business_title is None:
         message = 'Please provide your new business title'
@@ -757,6 +785,33 @@ def worker_checkin(event):
     location = str(slots['Location'])
     confirm = str(slots['Confirm'])
 
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'WorkStyle':
+            slots['WorkStyle'] = str(event['inputTranscript']).lower()
+            work_style = str(event['inputTranscript']).lower()
+    except KeyError:
+        pass
+    except TypeError:
+        pass
+
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Location':
+            slots['Location'] = str(event['inputTranscript']).lower()
+            location = str(event['inputTranscript']).lower()
+    except KeyError:
+        pass
+    except TypeError:
+        pass
+
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Confirm':
+            slots['Confirm'] = str(event['inputTranscript']).lower()
+            confirm = str(event['inputTranscript']).lower()
+    except KeyError:
+        pass
+    except TypeError:
+        pass
+
     if work_style.lower() == 'none':
         message = 'Where are you working from today?\nPlease enter the LETTER beside the option that best describes ' \
                   'your work location today:\n\nA) Working from home\nB) Working from office\nC) Working from client' \
@@ -1041,28 +1096,6 @@ def update_emergency_contact(event):
         if postal_code is None:
             message = 'Please provide their postal code/zip code'
             return elicit_slot(session_attributes, current_intent, slots, 'PostalCode', message)
-
-        # relative_state = slots['State']
-        #
-        # if event['recentIntentSummaryView'][0]['slotToElicit'] == 'State':
-        #     slots['State'] = str(event['inputTranscript']).lower()
-        #     relative_state = str(event['inputTranscript']).lower()
-        #
-        # if relative_state is None:
-        #     message = 'Please provide the State/Province where they live'
-        #     return elicit_slot(session_attributes, current_intent, slots, 'State', message)
-        #
-        # relative_state_converted = states_dict[str(relative_state).lower()]
-        #
-        # relative_city = slots['City']
-        #
-        # if event['recentIntentSummaryView'][0]['slotToElicit'] == 'City':
-        #     slots['City'] = str(event['inputTranscript']).lower()
-        #     relative_city = str(event['inputTranscript']).lower()
-        #
-        # if relative_city is None:
-        #     message = 'Please provide the City/Town where they live'
-        #     return elicit_slot(session_attributes, current_intent, slots, 'City', message)
 
         complete_address = slots['AddressLine']
 
