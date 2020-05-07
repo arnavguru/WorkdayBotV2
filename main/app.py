@@ -1,5 +1,4 @@
 import collections
-import json
 
 from dictionaries import missing_item_dict, missing_item_slots, missing_item_functions, phone_country_code_dict, \
     error_handler, work_style_dict, locations_dict, states_dict
@@ -99,7 +98,17 @@ def get_slots(intent_request):
     :param intent_request: JSON message from Lex
     :return: Dictionary of slot names and their values
     """
-    return intent_request['currentIntent']['slots']
+    current_intent = intent_request['currentIntent']['name']
+
+    try:
+        if intent_request['recentIntentSummaryView'][0]['intentName'] == current_intent:
+            return intent_request['recentIntentSummaryView'][0]['slots']
+        else:
+            return intent_request['currentIntent']['slots']
+    except TypeError:
+        return intent_request['currentIntent']['slots']
+    except KeyError:
+        return intent_request['currentIntent']['slots']
 
 
 def get_session_attributes(event):
@@ -428,14 +437,24 @@ def update_missing_info(event):
     slots = get_slots(event)
     user_choice = slots['UserChoice']
 
+    missing_data_list = ''
+
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'UserChoice':
+            slots['UserChoice'] = str(event['inputTranscript']).lower()
+            user_choice = str(event['inputTranscript']).lower()
+    except KeyError:
+        pass
+    except TypeError:
+        pass
+
     try:
         continue_update = session_attributes['update_in_progress']
     except KeyError:
         continue_update = None
 
     try:
-        missing_data = session_attributes['missing_personal_info']
-        missing_data = json.loads(missing_data)
+        missing_data = str(session_attributes['missing_personal_info']).split(',')[0:-1]
     except KeyError:
         missing_data = None
 
@@ -464,7 +483,8 @@ def update_missing_info(event):
             missing_data = fetch_missing_data(missing_data_report)
 
             if missing_data is None:
-                message = "All of your required information is up to date."
+                message = 'All of your required information is up to date. Please review your emergency contact as' \
+                          ' well by typing "View my emergency contact"'
 
                 new_attributes = {
                     'emp_id': emp_id,
@@ -478,6 +498,10 @@ def update_missing_info(event):
                 missing_item_keys = missing_data.keys()
                 missing_item_values = missing_data.values()
 
+                for value in missing_item_values:
+                    missing_data_list += value
+                    missing_data_list += ','
+
                 message = f'Hi {first_name},\nYou would now be aware that we are enabling work-from-home arrangements' \
                           f' in response to the COVID-19 pandemic.\n\n'
 
@@ -488,7 +512,7 @@ def update_missing_info(event):
 
                     new_attributes = {
                         'emp_id': emp_id,
-                        'missing_personal_info': json.dumps(missing_data),
+                        'missing_personal_info': missing_data_list,
                         'update_missing_data_choice': None
                     }
                     session_attributes = update_session_attributes(session_attributes, new_attributes)
@@ -504,7 +528,7 @@ def update_missing_info(event):
 
                     new_attributes = {
                         'emp_id': emp_id,
-                        'missing_personal_info': json.dumps(missing_data),
+                        'missing_personal_info': missing_data_list,
                         'update_missing_data_choice': None
                     }
                     session_attributes = update_session_attributes(session_attributes, new_attributes)
@@ -531,11 +555,7 @@ def update_missing_info(event):
             if user_choice == 'Yes':
                 message += 'Ok! Let\'s do it.\n'
 
-            missing_item_keys = missing_data.keys()
-            missing_item_values = missing_data.values()
-
-            missing_value = missing_item_values.__iter__().__next__()
-            missing_key = missing_item_keys.__iter__().__next__()
+            missing_value = missing_data[0]
             missing_slot = missing_item_slots[missing_value]
             missing_item = missing_item_dict[missing_value]
 
@@ -543,16 +563,27 @@ def update_missing_info(event):
 
             # single_slot_updates
             if missing_item in ['Home Phone Number', 'Home Email']:
-                if slots[missing_slot] is None:
+
+                slot_value = slots[missing_slot]
+
+                try:
+                    if event['recentIntentSummaryView'][0]['slotToElicit'] == missing_slot:
+                        if str(event['inputTranscript']).__contains__('mailto'):
+                            slots[missing_slot] = str(str(event['inputTranscript']).split('|')[1]).replace('>', '')
+                            slot_value = str(str(event['inputTranscript']).split('|')[1]).replace('>', '')
+                        else:
+                            slots[missing_slot] = str(event['inputTranscript'])
+                            slot_value = str(event['inputTranscript'])
+                except KeyError:
+                    pass
+                except TypeError:
+                    pass
+
+                if slot_value is None:
                     message += f"\nPlease provide your {missing_item.lower()}"
                     return elicit_slot(session_attributes, current_intent, slots, missing_slot, message)
                 else:
-                    slot_value = slots[missing_slot]
-
-                    if missing_slot == 'Mail':
-                        if slot_value.__contains__('mailto'):
-                            slot_value = str(slot_value).split(':', 2)[-1]
-                    elif missing_slot == 'Phone':
+                    if missing_slot == 'Phone':
                         slot_value = phone_country_code_dict[get_emp_country(event, emp_id)] + ':' + slot_value
                     else:
                         slot_value = slot_value
@@ -572,12 +603,11 @@ def update_missing_info(event):
 
                 return close(session_attributes, message)
 
-            missing_data.pop(missing_key)
-            missing_item_keys = missing_data.keys()
-            missing_item_values = missing_data.values()
+            missing_data.pop(0)
 
-            if len(missing_item_keys) == 0:
-                message += "\n\nThanks for sharing the requested information."
+            if len(missing_data) == 0:
+                message += '\n\nThanks for sharing the requested information. Please review your emergency contact as' \
+                           ' well by typing "View my emergency contact"'
 
                 new_attributes = {
                     'emp_id': emp_id,
@@ -590,13 +620,19 @@ def update_missing_info(event):
                 return close(session_attributes, message)
 
             else:
-                missing_value = missing_item_values.__iter__().__next__()
+                missing_value = missing_data[0]
                 missing_slot = missing_item_slots[missing_value]
                 missing_item = missing_item_dict[missing_value]
 
+                missing_data_list = ''
+
+                for value in missing_data:
+                    missing_data_list += value
+                    missing_data_list += ','
+
                 new_attributes = {
                     'emp_id': emp_id,
-                    'missing_personal_info': json.dumps(missing_data),
+                    'missing_personal_info': missing_data_list,
                     'update_missing_data_choice': '1',
                     'update_in_progress': '1'
                 }
@@ -681,6 +717,8 @@ def update_home_email(event):
                 slots['EmailID'] = str(event['inputTranscript'])
                 email_address = str(event['inputTranscript'])
     except KeyError:
+        pass
+    except TypeError:
         pass
 
     if email_address is None:
@@ -826,6 +864,23 @@ def update_emergency_contact(event):
 
     update_details = False
 
+    try:
+        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Update':
+            if str(event['inputTranscript']).lower() == 'yes':
+                update_details = True
+                slots['Update'] = 'yes'
+                session_attributes['update_details'] = '1'
+            elif str(event['inputTranscript']).lower() == 'no':
+                message = 'Thanks for confirming the details.'
+                return close(session_attributes, message)
+            else:
+                message = 'That\'s not a valid choice. Please respond with either Yes/No'
+                return elicit_slot(session_attributes, current_intent, slots, 'Update', message)
+    except KeyError:
+        pass
+    except TypeError:
+        pass
+
     if slots['Update'] is not None and slots['Update'].lower() == 'yes':
         update_details = True
         session_attributes['update_details'] = '1'
@@ -839,18 +894,6 @@ def update_emergency_contact(event):
             update_details = True
         else:
             update_details = False
-
-    try:
-        if event['recentIntentSummaryView'][0]['slotToElicit'] == 'Update':
-            if str(event['inputTranscript']).lower() == 'yes':
-                update_details = True
-                slots['Update'] = 'yes'
-                session_attributes['update_details'] = '1'
-            elif str(event['inputTranscript']).lower() == 'no':
-                message = 'Thanks for confirming the details.'
-                return close(session_attributes, message)
-    except KeyError:
-        pass
 
     emp_id = get_emp_id(event)
 
@@ -881,6 +924,13 @@ def update_emergency_contact(event):
                         'wd:Name_Detail_Data']['@wd:Formatted_Name']
 
                 try:
+                    relationship = next(
+                        (item for item in first_related_person['wd:Related_Person_Relationship_Reference']['wd:ID'] if
+                         item['@wd:type'] == 'Related_Person_Relationship_ID'), None)['#text']
+                except KeyError:
+                    relationship = 'Not Available'
+
+                try:
                     related_person_address = \
                         first_related_person['wd:Personal_Data']['wd:Contact_Data']['wd:Address_Data'][
                             '@wd:Formatted_Address'].replace('&#xa;', ',')
@@ -900,8 +950,9 @@ def update_emergency_contact(event):
                     related_person_email = 'Not Available'
 
                 message = f'Your current emergency details are as follows:\n\nContact Name: {related_person_name}\n\n' \
-                          f'Address: {related_person_address}\n\nPhone number: {related_person_phone}\n\n Email ID:' \
-                          f' {related_person_email}\n\nWould you like to update this information? [YES/NO]'
+                          f'Relation: {relationship}\n\nAddress: {related_person_address}\n\nPhone number: ' \
+                          f'{related_person_phone}\n\n Email ID: {related_person_email}\n\nWould you like to update ' \
+                          f'this information? [YES/NO]'
 
             else:
                 message = "Your emergency contact details are not available on Workday.\nWould you like to update " \
@@ -937,6 +988,8 @@ def update_emergency_contact(event):
                 relation_type = str(event['inputTranscript']).lower()
         except KeyError:
             pass
+        except TypeError:
+            pass
 
         if relation_type is None:
             message = 'Please specify the relationship (Father, Mother, Spouse, Child, etc)'
@@ -952,6 +1005,8 @@ def update_emergency_contact(event):
                 relative_first_name = str(event['inputTranscript']).capitalize()
         except KeyError:
             pass
+        except TypeError:
+            pass
 
         if relative_first_name is None:
             message = 'Please provide the first name of the contact:'
@@ -965,6 +1020,8 @@ def update_emergency_contact(event):
                 relative_last_name = str(event['inputTranscript']).capitalize()
         except KeyError:
             pass
+        except TypeError:
+            pass
 
         if relative_last_name is None:
             message = 'Please provide the last name of the contact:'
@@ -977,6 +1034,8 @@ def update_emergency_contact(event):
                 slots['PostalCode'] = str(event['inputTranscript'])
                 postal_code = str(event['inputTranscript'])
         except KeyError:
+            pass
+        except TypeError:
             pass
 
         if postal_code is None:
@@ -1013,6 +1072,8 @@ def update_emergency_contact(event):
                 complete_address = str(event['inputTranscript'])
         except KeyError:
             pass
+        except TypeError:
+            pass
 
         if complete_address is None:
             message = 'Please provide their address'
@@ -1032,6 +1093,8 @@ def update_emergency_contact(event):
                 phone_number = str(event['inputTranscript'])
         except KeyError:
             pass
+        except TypeError:
+            pass
 
         if phone_number is None:
             message = 'Please provide their phone number'
@@ -1049,9 +1112,11 @@ def update_emergency_contact(event):
                     email_address = str(event['inputTranscript'])
         except KeyError:
             pass
+        except TypeError:
+            pass
 
         if email_address is None:
-            message = 'Please provide your new home email address'
+            message = 'Please provide their home email address'
             return elicit_slot(session_attributes, current_intent, slots, 'EmailID', message)
 
         workday_response, status_code = human_resources.change_emergency_contact(emp_id, country, relation_type,
