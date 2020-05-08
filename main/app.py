@@ -71,15 +71,15 @@ def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message)
     """
     response = {
         'sessionAttributes': session_attributes,
-        "dialogAction": {
-            "type": "ElicitSlot",
-            "message": {
-                "contentType": "PlainText",
-                "content": message
+        'dialogAction': {
+            'type': 'ElicitSlot',
+            'message': {
+                'contentType': 'PlainText',
+                'content': message
             },
-            "intentName": intent_name,
-            "slots": slots,
-            "slotToElicit": slot_to_elicit
+            'intentName': intent_name,
+            'slots': slots,
+            'slotToElicit': slot_to_elicit
         }
     }
 
@@ -89,7 +89,7 @@ def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message)
     return response
 
 
-# Standalone functions
+# Support Functions
 
 def get_slots(intent_request):
     """
@@ -174,7 +174,7 @@ def get_emp_id(event):
         emp_id = session_attributes['emp_id']
         return emp_id
 
-    elif slots.__contains__("EmployeeID") and slots["EmployeeID"] is not None:
+    elif slots.__contains__('EmployeeID') and slots['EmployeeID'] is not None:
         emp_id = slots["EmployeeID"]
         return emp_id
 
@@ -184,16 +184,16 @@ def get_emp_id(event):
             if emp_id != "Not Found":
                 return emp_id
             else:
-                message = "Unable to find you in Workday. Please check if your Slack email address is same as your " \
-                          "work email address in Workday"
+                message = 'Unable to find you in Workday. Please check if your Slack email address is same as your ' \
+                          'work email address in Workday'
                 return close(session_attributes, message)
         else:
             message = f"{event['requestAttributes']['x-amz-lex:channel-type']} is not supported at the moment."
             return close(session_attributes, message)
 
     else:
-        message = "Please provide your Employee ID"
-        return elicit_slot(session_attributes, 'Greeting', {"EmployeeID": None}, 'EmployeeID', message)
+        message = 'Please provide your Employee ID'
+        return elicit_slot(session_attributes, 'Greeting', {'EmployeeID': None}, 'EmployeeID', message)
 
 
 def get_emp_first_name(event):
@@ -217,7 +217,7 @@ def get_emp_first_name(event):
             return first_name
 
         else:
-            message = f"Employee ID {emp_id} was not found in Workday. Please provide a valid Employee ID"
+            message = f'Employee ID {emp_id} was not found in Workday. Please provide a valid Employee ID'
             return elicit_slot(session_attributes, 'Greeting', {"EmployeeID": None}, 'EmployeeID',
                                message)
 
@@ -244,7 +244,7 @@ def get_emp_country(event, emp_id):
             return worker_country
 
         else:
-            message = f"Employee ID {emp_id} was not found in Workday. Please provide a valid Employee ID"
+            message = f'Employee ID {emp_id} was not found in Workday. Please provide a valid Employee ID'
             return elicit_slot(session_attributes, 'Greeting', {"EmployeeID": None}, 'EmployeeID',
                                message)
 
@@ -419,7 +419,7 @@ def change_business_title(event):
     workday_response, status_code = human_resources.change_business_title(emp_id, worker_position, business_title)
 
     if status_code == 200:
-        message = f"Your business title has been changed to {business_title}"
+        message = f'Your business title has been changed to {business_title}'
     else:
         message = workday_response['SOAP-ENV:Envelope']['SOAP-ENV:Body']['SOAP-ENV:Fault']['faultstring']
         message += '\nPlease contact HR to complete this action'
@@ -447,7 +447,7 @@ def disability_details_update(event):
     if type(emp_country) == dict:
         return emp_country
 
-    disability_portal = f"{company_portal}{str(emp_country).lower()}/personalinfo/"
+    disability_portal = f'{company_portal}{str(emp_country).lower()}/personalinfo/'
 
     new_attributes = {
         'emp_country': emp_country,
@@ -497,8 +497,8 @@ def update_missing_info(event):
         missing_data_report = custom_reports.get_missing_data(emp_id)
 
         if missing_data_report is None:
-            message = "Unable to validate your information on Workday. Please reach out to HR for verify your " \
-                      "personal information"
+            message = 'Unable to validate your information on Workday. Please reach out to HR for verify your ' \
+                      'personal information'
 
             new_attributes = {
                 'emp_id': emp_id
@@ -535,8 +535,8 @@ def update_missing_info(event):
 
                 if len(missing_item_keys) == 1:
                     missing_item = missing_item_dict[missing_item_values.__iter__().__next__()]
-                    message += f"I see your {missing_item.lower()} is not updated in your Workday profile.\n" \
-                               f"Would you like to update it now? [Yes/No]"
+                    message += f'I see your {missing_item.lower()} is not updated in your Workday profile.\n' \
+                               f'Would you like to update it now? [Yes/No]'
 
                     new_attributes = {
                         'emp_id': emp_id,
@@ -545,14 +545,14 @@ def update_missing_info(event):
                     }
                     session_attributes = update_session_attributes(session_attributes, new_attributes)
 
-                    return elicit_slot(session_attributes, current_intent, slots, "UserChoice", message)
+                    return elicit_slot(session_attributes, current_intent, slots, 'UserChoice', message)
 
                 else:
-                    message += "I see that the below items are missing:\n"
+                    message += 'I see that the below items are missing:\n'
                     for key in missing_item_keys:
                         missing_item = missing_item_dict[missing_data[key]]
                         message += str(key) + ". " + missing_item + '\n'
-                    message += "\nWould you like to update it now? [Yes/No]"
+                    message += '\nWould you like to update it now? [Yes/No]'
 
                     new_attributes = {
                         'emp_id': emp_id,
@@ -608,7 +608,7 @@ def update_missing_info(event):
                     pass
 
                 if slot_value is None:
-                    message += f"\nPlease provide your {missing_item.lower()}"
+                    message += f'\nPlease provide your {missing_item.lower()}'
                     return elicit_slot(session_attributes, current_intent, slots, missing_slot, message)
                 else:
                     if missing_slot == 'Phone':
@@ -619,7 +619,7 @@ def update_missing_info(event):
                     workday_response, status_code = missing_item_functions[missing_value](emp_id, 'HOME', slot_value)
 
                     if status_code == 200:
-                        message = f"Your {missing_item.lower()} has been updated successfully."
+                        message = f'Your {missing_item.lower()} has been updated successfully.'
                     else:
                         message = workday_response['SOAP-ENV:Envelope']['SOAP-ENV:Body']['SOAP-ENV:Fault'][
                             'faultstring']
@@ -670,14 +670,14 @@ def update_missing_info(event):
                 return elicit_slot(session_attributes, current_intent, slots, missing_slot, message)
 
         else:
-            message = "Please respond no either 'Yes' or 'No'"
+            message = 'Please respond no either \'Yes\' or \'No\''
 
             return elicit_slot(session_attributes, current_intent, slots, "UserChoice", message)
 
     else:
-        event['sessionAttributes']["missing_personal_info"] = None
-        event['sessionAttributes']["update_in_progress"] = None
-        event['sessionAttributes']["update_missing_data_choice"] = None
+        event['sessionAttributes']['missing_personal_info'] = None
+        event['sessionAttributes']['update_in_progress'] = None
+        event['sessionAttributes']['update_missing_data_choice'] = None
 
         return update_missing_info(event)
 
@@ -712,9 +712,9 @@ def suggest_utterance(event):
             alternates = error_handler[word]
 
     if alternates is None:
-        message = "Sorry, I am unable to help you with this. Please reach out to HR."
+        message = 'Sorry, I am unable to help you with this. Please reach out to HR.'
     else:
-        message = "Your query looks similar to a query I have answers to.\n Please try entering the below query\n"
+        message = 'Your query looks similar to a query I have answers to.\n Please try entering the below query\n'
         if len(alternates) == 1:
             message += ("\"" + alternates[0] + "\"" + "\n")
         else:
@@ -756,7 +756,7 @@ def update_home_email(event):
     workday_response, status_code = human_resources.change_home_contact_information_email(emp_id, 'HOME', email_address)
 
     if status_code == 200:
-        message = f"Your email address has been changed to {email_address}"
+        message = f'Your email address has been changed to {email_address}'
     else:
         message = workday_response['SOAP-ENV:Envelope']['SOAP-ENV:Body']['SOAP-ENV:Fault']['faultstring']
         message += '\nPlease contact HR to complete this action'
@@ -826,9 +826,9 @@ def worker_checkin(event):
         return elicit_slot(session_attributes, current_intent, slots, 'WorkStyle', message)
 
     if work_style.lower() not in ['a', 'b', 'c', 'd']:
-        message = f"'{work_style}' is not a valid choice. Please select by entering the letter corresponding to the " \
-                  f"relevant option\n\nA) Working from home\nB) Working from office\nC) Working from client " \
-                  "location\nD) On Personal Time Off"
+        message = f'\'{work_style}\' is not a valid choice. Please select by entering the letter corresponding to the' \
+                  f' relevant option\n\nA) Working from home\nB) Working from office\nC) Working from client ' \
+                  f'location\nD) On Personal Time Off'
 
         new_attributes = {
             'emp_id': emp_id,
@@ -846,9 +846,9 @@ def worker_checkin(event):
         return elicit_slot(session_attributes, current_intent, slots, 'Location', message)
 
     if location.lower() not in ['a', 'b', 'c', 'd' 'e', 'f', 'g', 'h', 'i', 'j'] and custom_location is None:
-        message = f"'{location}' is not a valid choice. Please enter the LETTER next to the option that best " \
-                  f"describes your location:\n\nA) Bengaluru\nB) Hyderabad\nC) Pune\nD) Chennai\nE) Gurugram\n" \
-                  f"F) Mumbai\nG) Kolkata\nH) Noida\nI) New Delhi\nJ) Others"
+        message = f'\'{location}\' is not a valid choice. Please enter the LETTER next to the option that best ' \
+                  f'describes your location:\n\nA) Bengaluru\nB) Hyderabad\nC) Pune\nD) Chennai\nE) Gurugram\n' \
+                  f'F) Mumbai\nG) Kolkata\nH) Noida\nI) New Delhi\nJ) Others'
 
         new_attributes = {
             'emp_id': emp_id,
@@ -875,15 +875,15 @@ def worker_checkin(event):
         location = locations_dict[location.lower()]
 
     if confirm.lower() == 'none':
-        message = f"I've noted that your current work location is: {work_style}, in {location}.\n" \
-                  f"If you have the computer, internet, and work instructions to continue your work, please end the " \
-                  f"chat by typing: DONE\nIf you need to let me know you help with computer, internet, or work " \
-                  f"instructions, type: NEXT"
+        message = f'I\'ve noted that your current work location is: {work_style}, in {location}.\n' \
+                  f'If you have the computer, internet, and work instructions to continue your work, please end the ' \
+                  f'chat by typing: DONE\nIf you need to let me know you help with computer, internet, or work ' \
+                  f'instructions, type: NEXT'
 
         return elicit_slot(session_attributes, current_intent, slots, 'Confirm', message)
 
     elif confirm.lower() not in ['done', 'next']:
-        message = "That's not a valid choice. Please enter either DONE or NEXT to proceed further."
+        message = 'That\'s not a valid choice. Please enter either DONE or NEXT to proceed further.'
 
         return elicit_slot(session_attributes, current_intent, slots, 'Confirm', message)
 
@@ -892,16 +892,16 @@ def worker_checkin(event):
 
         if status_code == 200:
             if confirm.lower() == 'done':
-                message = "Thanks for checking in.\n\nFinally, here is the HR Message of the day:\nAll GMS employees" \
-                          " who have travelled internationally for either business or personal reasons are to remain" \
-                          " at home for the first 14 days after returning. During that time, please do not report to" \
-                          " GMS or client offices. If unable to work from home during that time, please consult with" \
-                          " your supervisor or HR lead. \n Please check-in again tomorrow"
+                message = 'Thanks for checking in.\n\nFinally, here is the HR Message of the day:\nAll GMS employees' \
+                          ' who have travelled internationally for either business or personal reasons are to remain' \
+                          ' at home for the first 14 days after returning. During that time, please do not report to' \
+                          ' GMS or client offices. If unable to work from home during that time, please consult with' \
+                          ' your supervisor or HR lead. \n Please check-in again tomorrow'
 
             else:
-                message = "Thanks for checking in. \n\nPlease contact GMS IT Support for any help required with " \
-                          "computer, internet or work setup. You can reach to them over Slack or call 1800 123 " \
-                          "123456. \n Please check-in again tomorrow"
+                message = 'Thanks for checking in. \n\nPlease contact GMS IT Support for any help required with ' \
+                          'computer, internet or work setup. You can reach to them over Slack or call 1800 123 ' \
+                          '123456. \n Please check-in again tomorrow'
 
             return close(session_attributes, message)
 
@@ -1010,8 +1010,8 @@ def update_emergency_contact(event):
                           f'this information? [YES/NO]'
 
             else:
-                message = "Your emergency contact details are not available on Workday.\nWould you like to update " \
-                          "this information? [YES/NO]"
+                message = 'Your emergency contact details are not available on Workday.\nWould you like to update ' \
+                          'this information? [YES/NO]'
 
             new_attributes = {
                 'emp_id': emp_id,
